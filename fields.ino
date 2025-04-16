@@ -1,10 +1,12 @@
 #include <TFT_eSPI.h>       // Hardware-specific library
 #include "zbitx.h"
+#include "structures.h"
 #include "logbook.h"
 #include "ft8.h"
 #include "text_field.h"
-#include "fields_list.h"
+#include "listbox.h"
 #include "console.h"
+#include "fields_list.h"
 
 struct field *f_selected = NULL;
 extern int vswr, vfwd, vref, vbatt;
@@ -21,10 +23,10 @@ struct field *field_list;
 void field_init(){
   int count = 0;
 
+	structures_init();
+	Serial.println("Initializing fields");
   field_list = main_list;
 	ft8_init();
-	logbook_init();
-	waterfall_init();
   for (struct field *f = field_list; f->type != -1; f++){
     if (count < FIELDS_ALWAYS_ON)
       f->is_visible = true;
@@ -34,10 +36,13 @@ void field_init(){
     count++;
 		f->update_to_radio = false;
 		f->last_user_change= 0;
+		if (f->fn)
+			f->fn(f, FIELD_METHOD_INIT, NULL);
   }
 
   screen_text_extents(2, font_width2);
   screen_text_extents(4, font_width4);
+
 }
 
 void field_clear_all(){
@@ -122,6 +127,9 @@ void field_set_panel(const char *mode){
 	}
   else if (!strcmp(mode, "CW") || !strcmp(mode, "CWR")){
     strcpy(list, "ESC/F1/F2/F3/F4/F5/F6/F7/PITCH/WPM/TEXT/CONSOLE/WF");
+	}
+	else if (!strcmp(mode, "MSGR")){
+		strcpy(list, "CONTACTS/MESSAGES");
 	}  
   else
     strcpy(list, "MIC/TX/RX/WF/CONSOLE");  
@@ -150,7 +158,10 @@ void field_set(const char *label, const char *value, bool update_to_radio){
 	else if (!strcmp(label, "QSO")){
 		f = field_get("LOGB");
 		//Serial.printf("adding to logbook : %s\n", value);
-		logbook_update(value);
+		f->fn(f, FIELD_METHOD_UPDATE, (void *)value);
+		f->redraw = true;
+		return;
+		//logbook_update(value);
 	}
   else 
     f = field_get(label);
@@ -160,6 +171,9 @@ void field_set(const char *label, const char *value, bool update_to_radio){
 
   if (update_to_radio)
 		field_post_to_radio(f);
+
+	if (f->fn && f->fn(f, FIELD_METHOD_UPDATE, (void *)value) == 0)
+		return;
 
    //these are messages of FT8
   if(!strcmp(f->label, "FT8_LIST")){
@@ -172,7 +186,9 @@ void field_set(const char *label, const char *value, bool update_to_radio){
     console_update(f, label, value);  
     f->redraw = true;
   }
+/*
   else if (!strcmp(f->label, "WF")){
+		
     uint8_t spectrum[250];
     if (f->w > sizeof(spectrum)){
       Serial.println("waterfall is too large");
@@ -191,6 +207,7 @@ void field_set(const char *label, const char *value, bool update_to_radio){
     //always 250 points
     waterfall_update(spectrum);
   }
+*/
   //else if (strlen(value) < FIELD_TEXT_MAX_LENGTH - 1){
 	else {
     if (!strcmp(label, "MODE"))
@@ -255,7 +272,10 @@ struct field *field_select(const char *label){
 	if (!strcmp(f->label, "OPEN")){
 		f_selected = NULL;
 		field_post_to_radio(f);
-		logbook_init();
+		struct field *lb = field_get("LOGB");
+		if (lb && lb->fn)
+				lb->fn(lb, FIELD_METHOD_INIT, NULL);
+		//logbook_init();
 		struct field *f = dialog_box("Logbook", "LOGB/FINISH");
 		return NULL;
 	}
@@ -263,7 +283,10 @@ struct field *field_select(const char *label){
 		f_selected = NULL;
 	}
 	else if (!strcmp(f_selected->label, "SAVE")){
-		logbook_init();
+		struct field *lb = field_get("LOGB");
+		if (lb && lb->fn)
+				lb->fn(lb, FIELD_METHOD_INIT, NULL);
+		//logbook_init();
 	}
 
   if (f_selected)
@@ -546,8 +569,8 @@ void field_title_draw(field *f){
 
 void field_draw(struct field *f){
 	struct field *f2;
-	if (f->draw != NULL){
-		f->draw(f);
+	if (f->fn != NULL){
+		f->fn(f, FIELD_METHOD_DRAW, NULL);
 		return;
 	}
 	if (f->type != FIELD_WATERFALL && f->type != FIELD_FT8 && f->type != FIELD_LOGBOOK && f->type != FIELD_KEY
@@ -559,9 +582,10 @@ void field_draw(struct field *f){
       screen_draw_round_rect(f->x+2, f->y+2, f->w-4, f->h-4, TFT_WHITE);
   }
   switch(f->type){
-    case FIELD_WATERFALL:
+    /* case FIELD_WATERFALL:
       waterfall_draw(f);
       break;
+		*/
     case FIELD_KEY:
 			key_draw(f);
       break;
@@ -583,9 +607,9 @@ void field_draw(struct field *f){
     case FIELD_FT8:
       ft8_draw(f);
       break;
-		case FIELD_LOGBOOK:
+	/*	case FIELD_LOGBOOK:
 			logbook_draw(f);
-			break;
+			break; */
 		case FIELD_SMETER:
 			//smeter_draw(f);
 			return; // don't fall into the default background painting
@@ -616,6 +640,10 @@ void field_input(uint8_t input){
   if (!f_selected)
     return;
 
+	if (f_selected->fn){
+		if (!f_selected->fn(f_selected, FIELD_METHOD_INPUT, (void *)input))
+			return;
+	}
 	// handle some of the buttons locally rather than propage them 
 	// to the radio
 	if (f_selected->type == FIELD_FT8){
@@ -717,8 +745,8 @@ void field_input(uint8_t input){
       v -=  step;    
     sprintf(f_selected->value, "%d", v);      
   }
-	else if (f_selected->type == FIELD_LOGBOOK)
-		logbook_input(input);
+	else if (f_selected->type == FIELD_LOGBOOK && f_selected->fn)
+		f_selected->fn(f_selected, FIELD_METHOD_INPUT, (void *)input);
 	//this propagates all buttons to the radio
 	field_post_to_radio(f_selected);
   f_selected->redraw = true;

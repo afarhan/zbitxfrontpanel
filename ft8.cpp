@@ -13,7 +13,6 @@ unsigned long ft8_cursor_timeout = 0;
 int ft8_top = 0;
 unsigned long last_ft8_cursor_movement = 0;
 
-
 void ft8_init(){
   memset(ft8_list, 0, sizeof(ft8_list));
 	ft8_next = 0;

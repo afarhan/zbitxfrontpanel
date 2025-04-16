@@ -178,13 +178,6 @@ void keyboard_hide(){
   edit_mode = -1;
 	field_draw_all(true);
 }
-/*
-char read_key(){
-  char c = last_key;
-  last_key = 0;
-  return c;
-}
-*/
 
 char *text_editor_get_visible(struct field *f){
 	char *p = f->value + strlen(f->value);

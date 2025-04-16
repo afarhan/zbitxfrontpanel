@@ -7,7 +7,7 @@ struct field main_list[] = {
 
   //the first eight fiels are always visible
   {FIELD_BUTTON, 0, 0, 48, 48,  TFT_ORANGE, "MENU", "" },  
-  {FIELD_SELECTION, 48, 0, 48, 48,  TFT_BLACK, "MODE", "USB", "USB/LSB/CW/CWR/FT8/AM/DIGI/2TONE"},
+  {FIELD_SELECTION, 48, 0, 48, 48,  TFT_BLACK, "MODE", "USB", "USB/LSB/CW/CWR/FT8/AM/DIGI/MSGR/2TONE"},
   {FIELD_NUMBER, 96, 0, 48, 48,  TFT_BLACK, "DRIVE", "100", "0/100/5"},   
   {FIELD_NUMBER, 144, 0, 48, 48,  TFT_BLACK, "IF", "40", "0/100/1"},
   {FIELD_SELECTION, 192, 0, 48, 48,  TFT_BLACK, "RIT", "OFF", "ON/OFF"},
@@ -116,12 +116,19 @@ struct field main_list[] = {
   {FIELD_BUTTON, 144, 272, 96, 48, TFT_BLUE, "RX", ""},
 
   //logbook
-  {FIELD_LOGBOOK, 0, 48, 480, 224, TFT_BLACK, "LOGB", "", "", logbook_draw},
+  {FIELD_LOGBOOK, 0, 48, 480, 224, TFT_BLACK, "LOGB", "", "", logbook_fn},
   {FIELD_BUTTON, 24, 272, 96, 48, TFT_BLUE, "FINISH", ""},
   
   //waterfall can get hidden by keyboard et al (or even removed by FT8 etc
-  {FIELD_WATERFALL, 0, 96, 240, 176,  TFT_BLACK, "WF", ""}, //WARNING: Keep the height of the waterfall to be a multiple of 48 (see waterfal_update() code)
+	//WARNING: Keep the height of the waterfall to be a multiple of 48 (see waterfal_update() code)
+  {FIELD_WATERFALL, 0, 96, 240, 176,  TFT_BLACK, "WF", "", "", waterfall_fn}, 
 
+
+	//hf messenger
+  {FIELD_LISTBOX, 0, 48, 98, 224, TFT_BLACK, "CONTACTS", "", "", lb_fn},
+  {FIELD_LISTBOX, 100, 48, 378, 224, TFT_BLACK, "MESSAGES", "", "", lb_fn},
+  {FIELD_BUTTON, 120, 272, 96, 48, TFT_BLUE, "ADD CALL", ""},
+  {FIELD_BUTTON, 216, 272, 96, 48, TFT_BLUE, "NEW MSG", ""},
 
   /* These fields are never visible */
   {FIELD_KEY, 20000, 20000, 0, 0,  TFT_BLACK, "VFOA", "14074000"},  

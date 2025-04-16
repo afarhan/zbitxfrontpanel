@@ -11,6 +11,7 @@ The blink.ino should work (note that the pico w and pico have different gpios fo
 #include <TFT_eSPI.h>
 #include <Wire.h>
 #include "zbitx.h"
+#include "structures.h"
 extern "C" {
 #include "pico.h"
 #include "pico/time.h"
@@ -339,6 +340,8 @@ void setup() {
   Serial.begin(115200);
 	/* while(!Serial)
 		delay(100); */
+
+	structures_init();
   q_init(&q_incoming);
   Serial.println("Initializing the screen");  
   screen_init();

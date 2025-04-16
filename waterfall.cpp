@@ -17,9 +17,10 @@ void waterfall_bandwidth(int start, int stop, int center){
 	center_line = center;	
 }
 
-void waterfall_init(){  
+int waterfall_init(){  
   memset(waterfall, 0,  sizeof(waterfall));
 	waterfall_bandwidth(-10,-40,-25);
+	return 0;
 }
 
 uint16_t inline heat_map(int v){
@@ -63,7 +64,7 @@ uint16_t inline heat_map(int v){
   return (g << 13) | (b << 8) | (r << 3) | (g >> 3);
 }
 
-void waterfall_draw(struct field *f){
+int  waterfall_draw(struct field *f){
 
   screen_fill_rect(f->x, f->y, f->w, 48, TFT_BLACK);
 	// clip the bandwidth strip
@@ -105,13 +106,47 @@ void waterfall_draw(struct field *f){
    screen_bitblt(f->x, f->y+j, f->w, 1, line);
    wf += 240;
   }
+	return 0;
 }
 
 //always 240 values!
-void waterfall_update(uint8_t *bins){
+int waterfall_update(struct field *f, char *value){
+  uint8_t spectrum[250];
+  if (f->w > sizeof(spectrum)){
+    Serial.println("waterfall is too large");
+    return - 1;
+   }
+
+  //scale the values to fit the width
+  //adjust the offset by space character
+  int count = strlen(value);
+ 	//we take 240 points on the waterfall 
+ 	//and zzom it in/out
+ 	double scale = (240.0)/count;
+ 	for (int i = 0; i < f->w; i++){
+   int v = value[(int)(scale * i)]-32;
+   spectrum[i] = v;
+  }
+
   //scroll down the waterfall
   int waterfall_length = sizeof(waterfall);
   memmove(waterfall+240, waterfall, waterfall_length-240);
   for (int i = 240; i > 0; i--)
-    waterfall[i-1] = *bins++;
+    waterfall[i-1] = spectrum[i];
+	return 0;
 }
+
+int waterfall_fn(struct field *f, int method, void *ptr){
+	switch(method){
+	case FIELD_METHOD_DRAW:
+		return waterfall_draw(f);
+	case FIELD_METHOD_INPUT:
+		return -1;
+	case FIELD_METHOD_INIT:
+		return waterfall_init();
+	case FIELD_METHOD_UPDATE:
+		return waterfall_update(f, (char *)ptr);
+	}
+	return -1;
+}
+
