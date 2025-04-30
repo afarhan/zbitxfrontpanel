@@ -130,9 +130,10 @@ struct field main_list[] = {
 	//hf messenger
   {FIELD_LISTBOX, 0, 96, 144, 224, TFT_BLACK, "CONTACTS", "", "", lb_fn},
   {FIELD_LISTBOX, 149, 96, 330, 224, TFT_BLACK, "MESSAGES", "", "", lb_fn},
-  {FIELD_BUTTON, 120, 272, 96, 48, TFT_BLUE, "ADD CALL", ""},
-  {FIELD_BUTTON, 216, 272, 96, 48, TFT_BLUE, "NEW MSG", ""},
-  {FIELD_LOGBOOK, 0, 48, 480, 224, TFT_BLACK, "CONTACT", "", "" },
+  {FIELD_SELECTION, 0, 48, 96, 48,  TFT_BLACK, "PRESENCE", "READY", 
+		"READY/AWAY/BUSY/SILENT/QUD/QSP/CQ"},
+  {FIELD_BUTTON, 96, 48, 48, 48, TFT_BLUE, "ADD", ""},
+  {FIELD_STATIC, 149, 48, 280, 48, TFT_BLACK, "CONTACT", "", "" },
 
   /* These fields are never visible */
   {FIELD_KEY, 20000, 20000, 0, 0,  TFT_BLACK, "VFOA", "14074000"},  

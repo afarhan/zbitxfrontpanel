@@ -12,6 +12,7 @@ The blink.ino should work (note that the pico w and pico have different gpios fo
 #include <Wire.h>
 #include "zbitx.h"
 #include "structures.h"
+#include "listbox.h"
 extern "C" {
 #include "pico.h"
 #include "pico/time.h"
@@ -288,8 +289,12 @@ struct field *ui_slice(){
 	//poll for any changes in the messenger
 	//every 15 seconds
 	struct field *f_mode = field_get("MODE");
-	if (f_mode && ((now/1000) % 15 == 0) && !strcmp(f_mode->value, "MSG")){
-		NULL; //refresh the list
+	if (f_mode && (now % 15000 == 0) && !strcmp(f_mode->value, "MSG")){
+		struct field *f_contact = field_get("CONTACTS");
+		if (f_contact){
+			lb_reset(f_contact);
+			f_contact->update_to_radio = true;
+		}
 	}
 		
   // check the encoder state

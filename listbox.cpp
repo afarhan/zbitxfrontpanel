@@ -28,7 +28,10 @@ int lb_reset(struct field *f){
 		p = q;
 		count++;
 	}
+	lb->top_index = 0;
+	lb->selection = 0;
 	lb->list= NULL;		
+
 	return count;
 }
 
@@ -190,7 +193,6 @@ int lb_draw(struct field *f){
 
 	if(!lb->list)
 		return 0;
-
 	
 	lb_dump(f);
 
@@ -241,11 +243,11 @@ int lb_draw(struct field *f){
      	screen_draw_text(p+1, -1, x, y, color, 2);
      	x += screen_text_width(p+1,2);
 			//draw the selection
-			if(i == lb->selection)
-     		screen_draw_rect(f->x+1, f->y + (screen_text_height(2) * i), f->w-2, 
-					CONTROL_TEXT_HEIGHT, TFT_WHITE);
-			i++;   
  		}
+		if(i == lb->selection)
+   		screen_draw_rect(f->x+1, y, f->w-2, 
+				CONTROL_TEXT_HEIGHT, TFT_WHITE);
+		i++;
 		y += CONTROL_TEXT_HEIGHT;
 		p = p->next;	
    	//Serial.println("done");

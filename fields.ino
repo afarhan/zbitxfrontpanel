@@ -132,7 +132,17 @@ void field_set_panel(const char *mode){
 		field_show("SPAN", false);
 		field_show("BW", false);
 		field_show("STEP", false);
-		strcpy(list, "CONTACTS/MESSAGES");
+		field_show("OPEN", false);
+		field_show("WIPE", false);
+		field_show("CALL", false);
+		field_show("RECV", false);
+		field_show("SENT", false);
+		field_show("EXCH", false);
+		field_show("NR", false);
+		field_show("SAVE", false);
+		field_show("SET", false);
+
+		strcpy(list, "CONTACTS/MESSAGES/PRESENCE/ADD/CONTACT");
 		struct field *f = field_get("CONTACT");
 		if (f)
 			field_post_to_radio(f);
@@ -173,12 +183,16 @@ void field_set(const char *label, const char *value, bool update_to_radio){
 		char contact_status[100], item[100];
 
 		f = field_get("CONTACTS");
-		strcpy(contact_status, value);
-		char *contact = strtok(contact_status, "|");	
-		char *status = strtok(contact_status, "|");	
+		if (!strcmp(value, "CLEAR"))
+			lb_reset(f);
+		else{
+			strcpy(contact_status, value);
+			char *contact = strtok(contact_status, "|");	
+			char *status = strtok(contact_status, "|");	
 
-		sprintf(item, "#G%s", contact);
-		lb_insert(f, item, -1);
+			sprintf(item, "#G%s", contact);
+			lb_insert(f, item, -1);
+		}
 		f->redraw = true;
 		return;
 	}
