@@ -132,7 +132,7 @@ void command_tokenize(char c){
     cmd_in_field = true;
   }
   else if (c == COMMAND_END){
-		//Serial.printf("<<%s:%s", cmd_label, cmd_value);
+		Serial.printf("<<%s:%s", cmd_label, cmd_value);
 		if (strlen(cmd_label)){
 			struct field *f = field_get(cmd_label);
 			if (!f)  // some are not really fields but just updates, like QSO
@@ -145,9 +145,9 @@ void command_tokenize(char c){
     }
     cmd_in_label = false;
     cmd_in_field = false;
-		//Serial.println(">>");
+		Serial.println(">>");
   }
-  else if (!cmd_in_field) // only:0 handle characters between { and }
+  else if (!cmd_in_field) // only handle characters between { and }
     return;
   else if (cmd_in_label){
     //label is delimited by space
@@ -285,6 +285,13 @@ struct field *ui_slice(){
 		last_blink = now;
 	}
 
+	//poll for any changes in the messenger
+	//every 15 seconds
+	struct field *f_mode = field_get("MODE");
+	if (f_mode && ((now/1000) % 15 == 0) && !strcmp(f_mode->value, "MSG")){
+		NULL; //refresh the list
+	}
+		
   // check the encoder state
 	if (digitalRead(ENC_S) == HIGH && encoder_switch == true){
 			encoder_switch = false;		
@@ -369,7 +376,7 @@ void setup() {
 	attachInterrupt(ENC_A, on_enc, CHANGE);
 	attachInterrupt(ENC_B, on_enc, CHANGE);
 
-	field_set("9", "zBitx firmware v1.06\nWaiting for the zBitx to start...\n", false);
+	field_set("9", "zBitx firmware v1.07msg\nWaiting for the zBitx to start...\n", false);
 
 	if (digitalRead(ENC_S) == LOW)
 		reset_usb_boot(0,0); //invokes reset into bootloader mode

@@ -133,6 +133,7 @@ int waterfall_update(struct field *f, char *value){
   memmove(waterfall+240, waterfall, waterfall_length-240);
   for (int i = 240; i > 0; i--)
     waterfall[i-1] = spectrum[i];
+	f->redraw = true;
 	return 0;
 }
 

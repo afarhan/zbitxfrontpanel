@@ -42,6 +42,7 @@ int lb_init(struct field *f, void(*notify)(struct field *f, int notification, vo
 	lb->list = NULL;
 	lb->notify = notify;
 
+/*
 	if(!strcmp(f->label, "CONTACTS")){
 		lb_insert(f, "#RVU2XZ", -1);
 		lb_insert(f, "#RVU3VWR", -1);
@@ -56,7 +57,7 @@ int lb_init(struct field *f, void(*notify)(struct field *f, int notification, vo
 		lb_insert(f, "#SVU2ESE #D2025/04/05 0853:#\n#Wr.bring zbix\n", -1);
 		lb_insert(f, "#S    VU3VWR #D2025/04/05 0830:#\n#W   car broke down. shall we meet tmrw at 11 am?", -1);
 	}
-
+*/
 	return 0;
 }
 

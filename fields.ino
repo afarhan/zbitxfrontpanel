@@ -128,8 +128,14 @@ void field_set_panel(const char *mode){
   else if (!strcmp(mode, "CW") || !strcmp(mode, "CWR")){
     strcpy(list, "ESC/F1/F2/F3/F4/F5/F6/F7/PITCH/WPM/TEXT/CONSOLE/WF");
 	}
-	else if (!strcmp(mode, "MSGR")){
+	else if (!strcmp(mode, "MSG")){
+		field_show("SPAN", false);
+		field_show("BW", false);
+		field_show("STEP", false);
 		strcpy(list, "CONTACTS/MESSAGES");
+		struct field *f = field_get("CONTACT");
+		if (f)
+			field_post_to_radio(f);
 	}  
   else
     strcpy(list, "MIC/TX/RX/WF/CONSOLE");  
@@ -163,6 +169,19 @@ void field_set(const char *label, const char *value, bool update_to_radio){
 		return;
 		//logbook_update(value);
 	}
+	else if(!strcmp(label, "CONTACT")){
+		char contact_status[100], item[100];
+
+		f = field_get("CONTACTS");
+		strcpy(contact_status, value);
+		char *contact = strtok(contact_status, "|");	
+		char *status = strtok(contact_status, "|");	
+
+		sprintf(item, "#G%s", contact);
+		lb_insert(f, item, -1);
+		f->redraw = true;
+		return;
+	}
   else 
     f = field_get(label);
 
@@ -180,35 +199,11 @@ void field_set(const char *label, const char *value, bool update_to_radio){
     ft8_update(value);
     f->redraw = true;
   }
-
   //cw decoded text
   else if (!strcmp(f->label, "CONSOLE")){
     console_update(f, label, value);  
     f->redraw = true;
   }
-/*
-  else if (!strcmp(f->label, "WF")){
-		
-    uint8_t spectrum[250];
-    if (f->w > sizeof(spectrum)){
-      Serial.println("waterfall is too large");
-      return;
-    }
-    //scale the values to fit the width
-    //adjust the offset by space character
-    int count = strlen(value);
-    //we take 240 points on the waterfall 
-    //and zzom it in/out
-    double scale = (240.0)/count;
-    for (int i = 0; i < f->w; i++){
-      int v = value[(int)(scale * i)]-32;
-      spectrum[i] = v;
-    }
-    //always 250 points
-    waterfall_update(spectrum);
-  }
-*/
-  //else if (strlen(value) < FIELD_TEXT_MAX_LENGTH - 1){
 	else {
     if (!strcmp(label, "MODE"))
       field_set_panel(value);
