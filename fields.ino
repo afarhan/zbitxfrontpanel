@@ -142,7 +142,8 @@ void field_set_panel(const char *mode){
 		field_show("SAVE", false);
 		field_show("SET", false);
 
-		strcpy(list, "CONTACTS/MESSAGES/PRESENCE/ADD/CONTACT");
+  	screen_fill_rect(0,0,SCREEN_WIDTH, SCREEN_HEIGHT-96,SCREEN_BACKGROUND_COLOR);
+		strcpy(list, "CONTACTS/MESSAGES/PRESENCE/ADD/CONTACT/POST");
 		struct field *f = field_get("CONTACT");
 		if (f)
 			field_post_to_radio(f);
@@ -179,7 +180,7 @@ void field_set(const char *label, const char *value, bool update_to_radio){
 		return;
 		//logbook_update(value);
 	}
-	else if(!strcmp(label, "CONTACT")){
+	else if(!strcmp(label, "CONTACTS")){
 		char contact_status[100], item[100];
 
 		f = field_get("CONTACTS");
@@ -552,6 +553,7 @@ void smeter_draw(struct field *f){
 void field_static_draw(field *f){
 	char *p, text_line[FIELD_TEXT_MAX_LENGTH];
 
+  screen_fill_rect(f->x,f->y,f->w, f->h,SCREEN_BACKGROUND_COLOR);
 	p = f->value;
 	int y = f->y;
 	int i = 0;

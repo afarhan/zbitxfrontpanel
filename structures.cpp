@@ -9,7 +9,7 @@
 	in regular ascii text
 */
 
-#define MAX_THEAP  10000 
+#define MAX_THEAP  30000 
 char my_theap[MAX_THEAP+1];
 
 #define MAX_LINKS 500 

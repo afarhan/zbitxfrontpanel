@@ -133,7 +133,8 @@ struct field main_list[] = {
   {FIELD_SELECTION, 0, 48, 96, 48,  TFT_BLACK, "PRESENCE", "READY", 
 		"READY/AWAY/BUSY/SILENT/QUD/QSP/CQ"},
   {FIELD_BUTTON, 96, 48, 48, 48, TFT_BLUE, "ADD", ""},
-  {FIELD_STATIC, 149, 48, 280, 48, TFT_BLACK, "CONTACT", "", "" },
+  {FIELD_STATIC, 149, 48, 280, 48, TFT_BLACK, "CONTACT", "SELECT CONTACT", "" },
+  {FIELD_BUTTON, 432, 48, 48, 48, TFT_BLUE, "POST", ""},
 
   /* These fields are never visible */
   {FIELD_KEY, 20000, 20000, 0, 0,  TFT_BLACK, "VFOA", "14074000"},  
