@@ -9,10 +9,10 @@
 	in regular ascii text
 */
 
-#define MAX_THEAP  30000 
+#define MAX_THEAP  10000 
 char my_theap[MAX_THEAP+1];
 
-#define MAX_LINKS 500 
+#define MAX_LINKS 100 
 struct node linkblock[MAX_LINKS];
 struct node *free_list = NULL;
 
@@ -35,11 +35,13 @@ struct node *node_alloc(){
 	struct node *z = free_list;
 	free_list = z->next;
 	z->next = NULL;
+	//Serial.printf("alloted node %d\n", z->id);
 	return z;
 }
 
 void node_free(struct node *p){
 	p->next = free_list;
+	Serial.printf("freed node %d\n", p->id);
 	free_list = p;
 }
 

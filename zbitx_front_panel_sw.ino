@@ -133,7 +133,7 @@ void command_tokenize(char c){
     cmd_in_field = true;
   }
   else if (c == COMMAND_END){
-		Serial.printf("<<%s:%s", cmd_label, cmd_value);
+		//Serial.printf("<<%s:%s", cmd_label, cmd_value);
 		if (strlen(cmd_label)){
 			struct field *f = field_get(cmd_label);
 			if (!f)  // some are not really fields but just updates, like QSO
@@ -146,7 +146,7 @@ void command_tokenize(char c){
     }
     cmd_in_label = false;
     cmd_in_field = false;
-		Serial.println(">>");
+		//Serial.println(">>");
   }
   else if (!cmd_in_field) // only handle characters between { and }
     return;

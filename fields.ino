@@ -184,17 +184,26 @@ void field_set(const char *label, const char *value, bool update_to_radio){
 		char contact_status[100], item[100];
 
 		f = field_get("CONTACTS");
-		if (!strcmp(value, "CLEAR"))
+		if (!strcmp(value, "CLEAR")){
 			lb_reset(f);
+			lb_reset(field_get("MESSAGES"));
+		}
 		else{
 			strcpy(contact_status, value);
 			char *contact = strtok(contact_status, "|");	
 			char *status = strtok(contact_status, "|");	
 
 			sprintf(item, "#G%s", contact);
+			//Serial.printf("inserting %s into contacts.\n", item);
 			lb_insert(f, item, -1);
 		}
 		f->redraw = true;
+		return;
+	}
+	else if (!strcmp(label, "CHAT")){
+		struct field *m = field_get("MESSAGES");
+		Serial.printf("chat %s\n", value);
+		lb_insert(m, value, 0);
 		return;
 	}
   else 

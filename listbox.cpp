@@ -24,6 +24,7 @@ int lb_reset(struct field *f){
 	struct node *p = lb->list;
 	while(p){
 		struct node *q = p->next;
+		theap_free((char *)p->ptr);
 		node_free(p);
 		p = q;
 		count++;
@@ -44,23 +45,8 @@ int lb_init(struct field *f, void(*notify)(struct field *f, int notification, vo
 		lb_reset(f);
 	lb->list = NULL;
 	lb->notify = notify;
+	//Serial.printf("lb %s init\n", f->label);
 
-/*
-	if(!strcmp(f->label, "CONTACTS")){
-		lb_insert(f, "#RVU2XZ", -1);
-		lb_insert(f, "#RVU3VWR", -1);
-		lb_insert(f, "#WW7PUA", -1);
-		lb_insert(f, "#WVU2DXA", -1);
-		lb_dump(f);
-	}
-
-	
-	if (!strcmp(f->label, "MESSAGES")){
-		lb_insert(f, "#S   VU3VWR #D2025/04/05 0830:#\n#W   hi,meet 10:30?", -1);
-		lb_insert(f, "#SVU2ESE #D2025/04/05 0853:#\n#Wr.bring zbix\n", -1);
-		lb_insert(f, "#S    VU3VWR #D2025/04/05 0830:#\n#W   car broke down. shall we meet tmrw at 11 am?", -1);
-	}
-*/
 	return 0;
 }
 
@@ -97,16 +83,23 @@ int lb_count(struct field *f){
 
 int lb_insert(struct field *f, const char *update_str, int index){
 	struct listbox *lb = (struct listbox *)f->value;	
-	if (f->type != FIELD_LISTBOX)
+
+	if (f->type != FIELD_LISTBOX){
+		Serial.printf("lb_insert: Not a listbox %s\n", f->label);
 		return -1;
+	}
 
 	//allocate a new node and string for it
 	const char *p = theap_dup(update_str);
-	if (!p)
+	if (!p){
+		Serial.printf("lb_insert: out of text %s\n", f->label);
 		return -1;
+	}
 	struct node *pnew = node_alloc();
-	if (!pnew)
+	if (!pnew){
+		Serial.printf("lb_insert: out of nodes %s\n", f->label);
 		return -1;
+	}
 	pnew->ptr = (void *)p;
 
 	struct node *list = lb->list;
@@ -122,6 +115,9 @@ int lb_insert(struct field *f, const char *update_str, int index){
 		pnew->next = prev->next;
 		prev->next = pnew;
 	}
+	f->redraw = true;
+	//Serial.printf("lb_inserted %s\n", update_str);
+	//Serial.printf("inserted at %d\n", pnew->id);
 	return 0;
 }
 
@@ -191,10 +187,13 @@ int lb_draw(struct field *f){
 	screen_fill_rect(f->x, f->y, f->w, f->h, TFT_BLACK);
   screen_draw_round_rect(f->x+1, f->y+1, f->w-2, f->h-2, TFT_WHITE);
 
-	if(!lb->list)
+	Serial.printf("lb_draw %d\n", __LINE__);
+	if(!lb->list){
+		Serial.printf("No list found %s!\n", f->label);
 		return 0;
+	}
 	
-	lb_dump(f);
+	//lb_dump(f);
 
 	int y = f->y;
 	int count = lb_count(f);
@@ -215,6 +214,7 @@ int lb_draw(struct field *f){
 	while (p && y < f->y + f->h){
    	strcpy(buff, (char *)p->ptr);
 		int x = f->x + 4;
+		int y_item_top = y;
  	  for (char *p = strtok(buff, "#"); p; p = strtok(NULL, "#")){
   	  //F=white G=Green R=Red, S=Orange
       uint16_t color = TFT_WHITE;
@@ -245,8 +245,8 @@ int lb_draw(struct field *f){
 			//draw the selection
  		}
 		if(i == lb->selection)
-   		screen_draw_rect(f->x+1, y, f->w-2, 
-				CONTROL_TEXT_HEIGHT, TFT_WHITE);
+   		screen_draw_rect(f->x+1, y_item_top, f->w-2, 
+				y-y_item_top + CONTROL_TEXT_HEIGHT, TFT_WHITE);
 		i++;
 		y += CONTROL_TEXT_HEIGHT;
 		p = p->next;	
