@@ -161,6 +161,8 @@ struct field main_list[] = {
   {FIELD_SELECTION, 24, 96, 48, 48,  TFT_BLACK, "AGC", "MED", "OFF/SLOW/MED/FAST"},
   {FIELD_SELECTION, 72, 96, 48, 48,  TFT_BLACK, "VFO", "A", "A/B"},
   {FIELD_SELECTION, 120, 96, 48, 48,  TFT_BLACK, "SPLIT", "OFF", "ON/OFF"},  
+  {FIELD_BUTTON, 360, 248, 96, 48, TFT_RED, "SHUTDOWN", ""},
+
 	/* settings */
 
   {FIELD_STATIC, 26,48, 96, 0, TFT_BLACK, "MY CALL", "MY CALL:", "0/10"},
@@ -172,7 +174,11 @@ struct field main_list[] = {
   {FIELD_SELECTION, 24,112, 96, 48, TFT_BLACK, "CW_INPUT", "", "IAMBIC/IAMBICB/STRAIGHT"},
   {FIELD_NUMBER, 144, 112, 96, 48, TFT_BLACK, "CW_DELAY", "300", "50/1000/50"},
   {FIELD_NUMBER, 264, 112, 96, 48,  TFT_BLACK, "SIDETONE", "80", "0/100/5"},
-	
+
+  /* Shutdown confirmation dialog */
+  {FIELD_BUTTON, 360, 148, 96, 48, TFT_RED, "CONFIRM", ""},
+  {FIELD_STATIC, 26,48, 96, 0, TFT_RED, "WAITFORSHUTDOWN", "Please wait a few seconds before removing power!", ""},
+
   {-1}
 };
 #endif
